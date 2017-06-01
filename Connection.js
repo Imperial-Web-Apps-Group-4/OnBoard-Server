@@ -26,7 +26,7 @@ class Connection extends EventEmitter {
 
   die(message) {
     this.socket.close(INVALID_DATA_ERROR, message);
-    console.log('Connection died with message "' + message + '"');
+    console.log(this.toString() + ' Connection died with message "' + message + '"');
   }
 
   live() {

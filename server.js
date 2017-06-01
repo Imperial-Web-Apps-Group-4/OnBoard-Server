@@ -47,11 +47,15 @@ server.on('connection', (socket, req) => {
     lookupGame(seshID, state => {
       // Install new game
       activeGames[seshID] = new Session(seshID, state);
+      // Add user to game instance
+      console.log(logPrefix + 'Joining game instance', seshID);
+      activeGames[seshID].addConnection(connection);
     });
+  } else {
+    // Add user to game instance
+    console.log(logPrefix + 'Joining game instance', seshID);
+    activeGames[seshID].addConnection(connection);
   }
-  // Add user to game instance
-  console.log(logPrefix + 'Joining game instance', seshID);
-  activeGames[seshID].addConnection(connection);
 });
 
 function lookupGame(seshID, callback) {
