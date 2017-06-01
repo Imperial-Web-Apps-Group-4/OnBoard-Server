@@ -6,3 +6,14 @@ before_install:
   - docker build -t onboard/server .
 script:
   - docker run onboard/server npm test
+deploy:
+  provider: script
+  script: scripts/deploy.sh
+  skip_cleanup: true
+  on:
+    branch: master
+
+addons:
+  ssh_known_hosts:
+  - onboard.fun
+  - 198.199.76.135
