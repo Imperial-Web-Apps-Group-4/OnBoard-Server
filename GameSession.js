@@ -8,6 +8,7 @@ class GameSession {
   addConnection(connection) {
     this.connections.push(connection);
     connection.on('message', this.handleMessage.bind(this));
+    connection.send(this.state);
   }
 
   handleMessage(connection, msgString) {
@@ -22,7 +23,7 @@ class GameSession {
     if (!msg.type) connection.die("Type field missing");
     switch (msg.type) {
       case 'game':
-      // TODO: Update game state & run validation
+        // TODO: Update game state & run validation
         // Broadcast game updates to all other users
         this.connections.forEach(client => {
           if (client != connection && client.live()) {
