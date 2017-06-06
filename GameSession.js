@@ -8,7 +8,12 @@ class GameSession {
   addConnection(connection) {
     this.connections.push(connection);
     connection.on('message', this.handleMessage.bind(this));
-    connection.send(this.state);
+    let msg = {
+      type: 'init',
+      version: 1,
+      initalGameState: this.state
+    }
+    connection.send(msg);
   }
 
   handleMessage(connection, msgString) {

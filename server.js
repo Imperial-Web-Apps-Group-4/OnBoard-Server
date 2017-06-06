@@ -60,8 +60,7 @@ server.on('connection', (socket, req) => {
 
 function lookupGame(seshID, callback) {
   if (process.env.NODE_ENV !== 'production') {
-    var defaultState = { board: 'http://onboard.fun/assets/board.jpg' };
-    callback(defaultState);
+    callback(require('./DefaultGame'));
     return;
   }
   client.get("http://onboard.fun/game_sessions/" + seshID + ".json", data => {
