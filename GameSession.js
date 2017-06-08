@@ -1,3 +1,5 @@
+const Models = require('onboard-shared');
+
 class GameSession {
   constructor(seshID, state) {
     this.seshID = seshID;
@@ -8,12 +10,7 @@ class GameSession {
   addConnection(connection) {
     this.connections.push(connection);
     connection.on('message', this.handleMessage.bind(this));
-    let msg = {
-      type: 'init',
-      version: 1,
-      initalGameState: this.state
-    }
-    connection.send(msg);
+    connection.send(new Models.InitMessage('v1', this.state));
   }
 
   handleMessage(connection, msgString) {
