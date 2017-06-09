@@ -20,11 +20,9 @@ function checkURL(info, callback) {
   const path = url.parse(info.req.url, true).pathname;
   var accept = false;
   // TODO: Check further
-  if (path.substr(0, 6) === '/game/') {
+  if (path.substr(0, 7) === '/games/') {
     accept = true;
-    console.log('Accepting');
   }
-console.log('Accepted');
 
   if (typeof callback === 'function') {
     callback(accept);
@@ -44,8 +42,8 @@ server.on('connection', (socket, req) => {
   const connection = new Connection(connectionID, socket);
   const logPrefix = connection.toString() + ' ';
 
-  const gameID = url.parse(req.url, true).pathname.match(/\w{26}/)[0];
-  const seshID = url.parse(req.url, true).pathname.match(/games\/(\d+)\//)[1];
+  const seshID = url.parse(req.url, true).pathname.match(/\w{26}/)[0];
+  const gameID = url.parse(req.url, true).pathname.match(/games\/(\d+)\//)[1];
 
   if (activeGames[seshID] === undefined) {
     console.log(logPrefix + 'Creating new game instance', seshID);
@@ -65,7 +63,10 @@ server.on('connection', (socket, req) => {
 
 function lookupGame(gameID, seshID, callback) {
   if (process.env.NODE_ENV !== 'production') {
-    callback(require('./DefaultGame'));
+    client.get("http://localhost:3000/games/" + gameID + "/sessions/" + seshID + ".json", data => {
+      // TODO: Error handling
+      callback(data.state);
+    });
     return;
   }
   client.get("http://onboard.fun/games/" + gameID + "/sessions/" + seshID + ".json", data => {
