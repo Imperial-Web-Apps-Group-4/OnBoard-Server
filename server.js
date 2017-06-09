@@ -19,7 +19,8 @@ const wsServerConfig = {
 function checkURL(info, callback) {
   const path = url.parse(info.req.url, true).pathname;
   var accept = false;
-  if (path.substr(0, 9) === '/session/' && path.substring(9) !== '') {
+  // TODO: Check further
+  if (path.substr(0, 7) === '/games/') {
     accept = true;
   }
 
@@ -41,10 +42,12 @@ server.on('connection', (socket, req) => {
   const connection = new Connection(connectionID, socket);
   const logPrefix = connection.toString() + ' ';
 
-  const seshID = url.parse(req.url, true).pathname.substring(9);
+  const seshID = url.parse(req.url, true).pathname.match(/\w{26}/)[0];
+  const gameID = url.parse(req.url, true).pathname.match(/games\/(\d+)\//)[1];
+
   if (activeGames[seshID] === undefined) {
     console.log(logPrefix + 'Creating new game instance', seshID);
-    lookupGame(seshID, state => {
+    lookupGame(gameID, seshID, state => {
       // Install new game
       activeGames[seshID] = new Session(seshID, state);
       // Add user to game instance
@@ -58,12 +61,15 @@ server.on('connection', (socket, req) => {
   }
 });
 
-function lookupGame(seshID, callback) {
+function lookupGame(gameID, seshID, callback) {
   if (process.env.NODE_ENV !== 'production') {
-    callback(require('./DefaultGame'));
+    client.get("http://localhost:3000/games/" + gameID + "/sessions/" + seshID + ".json", data => {
+      // TODO: Error handling
+      callback(data.state);
+    });
     return;
   }
-  client.get("http://onboard.fun/game_sessions/" + seshID + ".json", data => {
+  client.get("http://onboard.fun/games/" + gameID + "/sessions/" + seshID + ".json", data => {
     // TODO: Error handling
     callback(data.state);
   });
