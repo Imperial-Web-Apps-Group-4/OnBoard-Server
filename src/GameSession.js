@@ -29,6 +29,7 @@ class GameSession {
     if (!msg.type) connection.die('Type field missing');
     switch (msg.type) {
     case 'game':
+      this.game.applyAction(msg.action);
       // Broadcast game updates to all other users
       this.connections.forEach(client => {
         if (client != connection && client.live()) {
