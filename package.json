@@ -24,7 +24,7 @@
   "homepage": "https://github.com/Imperial-Web-Apps-Group-4/OnBoard-Server#readme",
   "dependencies": {
     "node-rest-client": "^3.1.0",
-    "onboard-shared": "^2.1.1",
+    "onboard-shared": "^2.2.0",
     "ws": "^3.0.0"
   }
 }
