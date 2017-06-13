@@ -19,28 +19,28 @@ class GameSession {
   }
 
   handleMessage(connection, msgString) {
-    var msg;
+    let msg;
     try {
       msg = JSON.parse(msgString);
     } catch (e) {
-      connection.die("JSON message parse error");
+      connection.die('JSON message parse error');
       return;
     }
 
-    if (!msg.type) connection.die("Type field missing");
+    if (!msg.type) connection.die('Type field missing');
     switch (msg.type) {
-      case 'game':
-        // Broadcast game updates to all other users
-        this.connections.forEach(client => {
-          if (client != connection && client.live()) {
-            client.send(msg);
-          }
-        });
-        break;
-        default:
+    case 'game':
+      // Broadcast game updates to all other users
+      this.connections.forEach(client => {
+        if (client != connection && client.live()) {
+          client.send(msg);
+        }
+      });
+      break;
+    default:
         // TODO: Handle this better?
-        connection.die("Type field unrecognised");
-        return;
+      connection.die('Type field unrecognised');
+      return;
     }
   }
 }
