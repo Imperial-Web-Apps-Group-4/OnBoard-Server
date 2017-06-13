@@ -4,9 +4,8 @@ const WebSocket = require('ws');
 const url = require('url');
 const Session = require('./GameSession');
 const Connection = require('./Connection');
-
-var Client = require('node-rest-client').Client;
-var client = new Client();
+const OnBoardAPI = require('./OnBoardAPI');
+const Models = require('onboard-shared');
 
 var activeGames = {};
 
@@ -46,31 +45,13 @@ server.on('connection', (socket, req) => {
   const gameID = url.parse(req.url, true).pathname.match(/games\/(\d+)\//)[1];
 
   if (activeGames[seshID] === undefined) {
-    console.log(logPrefix + 'Creating new game instance', seshID);
-    lookupGame(gameID, seshID, state => {
+    OnBoardAPI.retreiveGameObj(gameID, seshID, rawGame => {
+      let game = Models.deserialiseGame(rawGame);
       // Install new game
-      activeGames[seshID] = new Session(seshID, state);
-      // Add user to game instance
-      console.log(logPrefix + 'Joining game instance', seshID);
-      activeGames[seshID].addConnection(connection);
+      activeGames[seshID] = new Session(seshID, game, connection);
     });
   } else {
     // Add user to game instance
-    console.log(logPrefix + 'Joining game instance', seshID);
     activeGames[seshID].addConnection(connection);
   }
 });
-
-function lookupGame(gameID, seshID, callback) {
-  if (process.env.NODE_ENV !== 'production') {
-    client.get("http://localhost:3000/games/" + gameID + "/sessions/" + seshID + ".json", data => {
-      // TODO: Error handling
-      callback(data.state);
-    });
-    return;
-  }
-  client.get("http://onboard.fun/games/" + gameID + "/sessions/" + seshID + ".json", data => {
-    // TODO: Error handling
-    callback(data.state);
-  });
-}

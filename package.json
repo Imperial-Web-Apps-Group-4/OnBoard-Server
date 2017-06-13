@@ -2,8 +2,9 @@
   "name": "onboard-server",
   "version": "0.0.1",
   "description": "A Node server to connect OnBoard clients & synchronise game state.",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
+    "start": "node src/server.js",
     "test": "echo \"All 0 tests passed.\""
   },
   "repository": {
@@ -23,7 +24,7 @@
   "homepage": "https://github.com/Imperial-Web-Apps-Group-4/OnBoard-Server#readme",
   "dependencies": {
     "node-rest-client": "^3.1.0",
-    "onboard-shared": "^2.0.1",
+    "onboard-shared": "^2.1.1",
     "ws": "^3.0.0"
   }
 }
