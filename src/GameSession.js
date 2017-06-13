@@ -8,7 +8,6 @@ class GameSession {
 
     console.log(`${connection.toString()} Creating new game instance`, seshID);
     this.addConnection(connection);
-    console.log(this.connections);
   }
 
   addConnection(connection) {

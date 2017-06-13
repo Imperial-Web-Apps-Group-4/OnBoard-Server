@@ -45,7 +45,7 @@ server.on('connection', (socket, req) => {
 
   // Check if there is a game session in progress
   if (activeGames[seshID] === undefined) {
-    OnBoardAPI.retreiveGameObj(gameID, seshID, rawGame => {
+    OnBoardAPI.retrieveInitialState(gameID, seshID, (error, rawGame) => {
       let game = Models.deserialiseGame(rawGame);
       // Install new game
       activeGames[seshID] = new Session(seshID, game, connection);
