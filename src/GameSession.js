@@ -1,9 +1,9 @@
 const Models = require('onboard-shared');
 
 class GameSession {
-  constructor(seshID, state, connection) {
+  constructor(seshID, game, connection) {
     this.seshID = seshID;
-    this.state = state;
+    this.game = game;
     this.connections = [];
 
     console.log(`${connection.toString()} Creating new game instance`, seshID);
@@ -14,10 +14,11 @@ class GameSession {
     console.log(`${connection.toString()}  Joining game instance`, this.seshID);
     this.connections.push(connection);
     connection.on('message', this.handleMessage.bind(this));
-    connection.send(new Models.InitMessage('v1', this.state));
+    connection.send(new Models.InitMessage('v1', this.game));
   }
 
   handleMessage(connection, msgString) {
+    // Parse message string from client
     let msg;
     try {
       msg = JSON.parse(msgString);
@@ -26,7 +27,6 @@ class GameSession {
       return;
     }
 
-    if (!msg.type) connection.die('Type field missing');
     switch (msg.type) {
     case 'game':
       this.game.applyAction(msg.action);
@@ -38,7 +38,8 @@ class GameSession {
       });
       break;
     default:
-        // TODO: Handle this better?
+      if (!msg.type) connection.die('Type field missing');
+      // TODO: Handle this better?
       connection.die('Type field unrecognised');
       return;
     }
