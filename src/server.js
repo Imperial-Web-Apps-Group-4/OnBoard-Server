@@ -40,8 +40,15 @@ server.on('connection', (socket, req) => {
   const connectionID = `${req.socket.remoteAddress.toString()}:${req.socket.remotePort.toString()}`;
   const connection = new Connection(connectionID, socket);
 
-  const seshID = url.parse(req.url, true).pathname.match(/\w{26}/)[0];
-  const gameID = url.parse(req.url, true).pathname.match(/games\/(\d+)\//)[1];
+  let seshID;
+  let gameID;
+  try {
+    seshID = url.parse(req.url, true).pathname.match(/\w{26}/)[0];
+    gameID = url.parse(req.url, true).pathname.match(/games\/(\d+)\//)[1];
+  } catch (e) {
+    connection.die('Url parsing failed');
+    return;
+  }
 
   // Check if there is a game session in progress
   if (activeGames[seshID] === undefined) {
