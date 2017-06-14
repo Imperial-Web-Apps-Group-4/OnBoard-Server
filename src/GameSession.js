@@ -1,4 +1,4 @@
-const Models = require('onboard-shared');
+const Message = require('onboard-shared').Message;
 
 class GameSession {
   constructor(seshID, game, connection) {
@@ -14,7 +14,7 @@ class GameSession {
     console.log(`${connection.toString()}  Joining game instance`, this.seshID);
     this.connections.push(connection);
     connection.on('message', this.handleMessage.bind(this));
-    connection.send(new Models.InitMessage('v1', this.game));
+    connection.send(new Message.InitMessage('v1', this.game));
   }
 
   handleMessage(connection, msgString) {

@@ -5,7 +5,7 @@ const url = require('url');
 const Session = require('./GameSession');
 const Connection = require('./Connection');
 const OnBoardAPI = require('./OnBoardAPI');
-const Models = require('onboard-shared');
+const Shared = require('onboard-shared');
 
 let activeGames = {};
 
@@ -57,7 +57,7 @@ server.on('connection', (socket, req) => {
         connection.die(`Unable to retrieve state for ${gameID}/${seshID}`);
         return;
       }
-      let game = Models.deserialiseGame(rawGame);
+      let game = Shared.deserialiseGame(rawGame);
       // Install new game
       activeGames[seshID] = new Session(seshID, game, connection);
     });
