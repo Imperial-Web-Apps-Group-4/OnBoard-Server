@@ -40,19 +40,23 @@ server.on('connection', (socket, req) => {
   const connectionID = `${req.socket.remoteAddress.toString()}:${req.socket.remotePort.toString()}`;
   const connection = new Connection(connectionID, socket);
 
-  let seshID;
-  let gameID;
-  try {
-    seshID = url.parse(req.url, true).pathname.match(/\w{26}/)[0];
-    gameID = url.parse(req.url, true).pathname.match(/games\/(\d+)\//)[1];
-  } catch (e) {
+  const seshMatch = url.parse(req.url, true).pathname.match(/[a-z]{26}/);
+  const gameMatch = url.parse(req.url, true).pathname.match(/games\/(\d+)\//);
+  if (seshMatch === null || gameMatch === null
+    || !seshMatch[0] || !gameMatch[1]) {
     connection.die('Url parsing failed');
     return;
   }
+  const seshID = seshMatch[0];
+  const gameID = gameMatch[1];
 
   // Check if there is a game session in progress
   if (activeGames[seshID] === undefined) {
     OnBoardAPI.retrieveInitialState(gameID, seshID, (error, rawGame) => {
+      if (error) {
+        connection.die(`Unable to retrieve state for ${gameID}/${seshID}`);
+        return;
+      }
       let game = Models.deserialiseGame(rawGame);
       // Install new game
       activeGames[seshID] = new Session(seshID, game, connection);
