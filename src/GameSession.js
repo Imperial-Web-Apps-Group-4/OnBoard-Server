@@ -15,6 +15,8 @@ class GameSession {
     this.connections.push(connection);
     connection.on('message', this.handleMessage.bind(this));
     connection.send(new Message.InitMessage('v1', this.game));
+    const people_message = this.connections.length == 1 ? 'is 1 person playing' : `are ${this.connections.length} people`;
+    connection.send(new Message.ChatMessage('OnBoard', `Connected to game server. There ${people_message} playing.`, true));
   }
 
   handleMessage(connection, msgString) {
@@ -31,11 +33,10 @@ class GameSession {
     case 'game':
       this.game.applyAction(msg.action);
       // Broadcast game updates to all other users
-      this.connections.forEach(client => {
-        if (client != connection && client.live()) {
-          client.send(msg);
-        }
-      });
+      this.broadcastMessageExcluding(msg, connection);
+      break;
+    case 'chat':
+      this.broadcastMessageExcluding(msg, connection);
       break;
     default:
       if (!msg.type) connection.die('Type field missing');
@@ -43,6 +44,14 @@ class GameSession {
       connection.die('Type field unrecognised');
       return;
     }
+  }
+
+  broadcastMessageExcluding(msg, connection) {
+    this.connections.forEach(client => {
+      if (client != connection && client.live()) {
+        client.send(msg);
+      }
+    });
   }
 }
 

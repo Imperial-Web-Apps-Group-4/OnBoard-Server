@@ -6,9 +6,10 @@ module.exports.retrieveInitialState = function (gameID, seshID, callback) {
   restClient.get(apiURL, data => {
     let initialState;
     try {
-      initialState = JSON.parse(data.state)
+      initialState = JSON.parse(data.state);
     } catch (e) {
       callback(e);
+      return;
     }
     callback(null, initialState);
   });
