@@ -8,6 +8,7 @@ class Connection extends EventEmitter {
     super();
     this.connectionID = connectionID;
     this.socket = socket;
+    this.name = 'A player';
 
     console.log(this.toString() + ' Connection initiated');
 
@@ -16,6 +17,7 @@ class Connection extends EventEmitter {
     });
 
     this.socket.on('close', () => {
+      this.emit('close', this);
       console.log(this.toString() + ' Connection closed');
     });
   }

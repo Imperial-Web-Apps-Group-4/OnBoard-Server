@@ -11,12 +11,16 @@ class GameSession {
   }
 
   addConnection(connection) {
-    console.log(`${connection.toString()}  Joining game instance`, this.seshID);
     this.connections.push(connection);
     connection.on('message', this.handleMessage.bind(this));
+    connection.on('close', this.handleClose.bind(this));
+
+    // Send welcome messages & log
+    console.log(`${connection.toString()}  Joining game instance`, this.seshID);
+    const people_message = `There ${this.connections.length == 1 ? 'is 1 person' : `are ${this.connections.length} people`} playing.`;
     connection.send(new Message.InitMessage('v1', this.game));
-    const people_message = this.connections.length == 1 ? 'is 1 person playing' : `are ${this.connections.length} people`;
-    connection.send(new ServerMessage(`Connected to game server. There ${people_message} playing.`));
+    connection.send(new ServerMessage('Connected to game server. ' + people_message));
+    this.broadcastMessageExcluding(connection, new ServerMessage(`${connection.name} joined the game.`));
   }
 
   handleMessage(connection, msgString) {
@@ -33,12 +37,13 @@ class GameSession {
     case 'game':
       this.game.applyAction(msg.action);
       // Broadcast game updates to all other users
-      this.broadcastMessageExcluding(msg, connection);
+      this.broadcastMessageExcluding(connection, msg);
       break;
     case 'chat':
       // Stop users from sending official messages
       msg.official = false;
-      this.broadcastMessageExcluding(msg, connection);
+      connection.name = msg.name;
+      this.broadcastMessageExcluding(connection, msg);
       if (msg.content[0] == '/') {
         let res = processCommand(msg.content.substr(1), msg.name);
         this.broadcastMessage(res);
@@ -53,15 +58,22 @@ class GameSession {
   }
 
   broadcastMessage(msg) {
-    this.broadcastMessageExcluding(msg, null);
+    this.broadcastMessageExcluding(null, msg);
   }
 
-  broadcastMessageExcluding(msg, connection) {
+  broadcastMessageExcluding(connection, msg) {
     this.connections.forEach(client => {
       if (client !== connection && client.live()) {
         client.send(msg);
       }
     });
+  }
+
+  handleClose(connection) {
+    let index = this.connections.indexOf(connection);
+    // Remove player from connections array
+    this.connections.splice(index, 1);
+    this.broadcastMessage(new ServerMessage(`${connection.name} left the game.`));
   }
 }
 
