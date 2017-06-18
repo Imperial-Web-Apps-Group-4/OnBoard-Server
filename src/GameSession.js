@@ -17,9 +17,10 @@ class GameSession {
 
     // Send welcome messages & log
     console.log(`${connection.toString()}  Joining game instance`, this.seshID);
-    const people_message = `There ${this.connections.length == 1 ? 'is 1 person' : `are ${this.connections.length} people`} playing.`;
+    const otherCount = this.connections.length - 1;
+    const peopleMessage = `There ${otherCount == 1 ? 'is 1 other person' : `are ${otherCount} other people`} playing.`;
     connection.send(new Message.InitMessage('v1', this.game));
-    connection.send(new ServerMessage('Connected to game server. ' + people_message));
+    connection.send(new ServerMessage('Connected to game server. ' + (otherCount !== 0 ? peopleMessage : '')));
     this.broadcastMessageExcluding(connection, new ServerMessage(`${connection.name} joined the game.`));
   }
 
