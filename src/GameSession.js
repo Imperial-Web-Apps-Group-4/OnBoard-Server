@@ -12,7 +12,7 @@ class GameSession {
 
   addConnection(connection) {
     this.connections.push(connection);
-    connection.on('message', this.handleMessage.bind(this));
+    connection.once('message', this.handleInitialMessage.bind(this));
     connection.on('close', this.handleClose.bind(this));
 
     // Send welcome messages & log
@@ -21,6 +21,27 @@ class GameSession {
     const peopleMessage = `There ${otherCount == 1 ? 'is 1 other person' : `are ${otherCount} other people`} playing.`;
     connection.send(new Message.InitMessage('v1', this.game));
     connection.send(new ServerMessage('Connected to game server. ' + (otherCount !== 0 ? peopleMessage : '')));
+  }
+
+  handleInitialMessage(connection, msgString) {
+    /* Bind the normal message receiver instead of the initial message receiver */
+    connection.on('message', this.handleMessage.bind(this));
+
+    let msg;
+
+    try {
+      msg = JSON.parse(msgString);
+    } catch (e) {
+      connection.die('JSON message parse error');
+      return;
+    }
+
+    if (msg.type !== 'init') {
+      connection.die('Expected init message');
+      return;
+    }
+
+    connection.name = msg.initialState.name;
     this.broadcastMessageExcluding(connection, new ServerMessage(`${connection.name} joined the game.`));
   }
 
