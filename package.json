@@ -1,6 +1,6 @@
 {
   "name": "onboard-server",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A Node server to connect OnBoard clients & synchronise game state.",
   "main": "src/server.js",
   "scripts": {
